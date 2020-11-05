@@ -79,7 +79,7 @@ public class Query8 implements StreamApplication, Serializable {
                 persons
 //                        .partitionBy(ps -> String.valueOf(ps.getId()), ps -> ps, KVSerde.of(stringSerde, personSerde), "person")
                         .map(KV -> {
-//                            delay(1);
+                            delay(1);
                             return KV;
                         });
 
@@ -87,7 +87,7 @@ public class Query8 implements StreamApplication, Serializable {
                 auctions
 //                        .partitionBy(ac -> String.valueOf(ac.getSeller()), ac -> ac, KVSerde.of(stringSerde, auctionSerde), "auction")
                         .map(KV -> {
-//                            delay(1);
+                            delay(1);
                             return KV;
                         });
 

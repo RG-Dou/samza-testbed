@@ -26,6 +26,7 @@ public class KafkaPersonGenerator {
     private long eventsCountSoFar = 0;
     private int rate;
     private int cycle;
+    private long fixId = 10000;//DrG
 
     public KafkaPersonGenerator(String input, String BROKERS, int rate, int cycle) {
         Properties props = new Properties();
@@ -55,7 +56,7 @@ public class KafkaPersonGenerator {
                 // change input rate every 1 second.
                 epoch++;
                 System.out.println();
-                curRate = changeRate(epoch);
+//                curRate = changeRate(epoch);
                 System.out.println("epoch: " + epoch%cycle + " current rate is: " + curRate);
                 count = 0;
             }
@@ -74,6 +75,13 @@ public class KafkaPersonGenerator {
                 ProducerRecord<Long, String> newRecord = new ProducerRecord<Long, String>(TOPIC, nextId,
                         PersonGenerator.nextPerson(nextId, rnd, eventTimestamp, config).toString());
                 producer.send(newRecord);
+                //DrG
+//                for(int j  = 0; j < 1; j ++) {
+//                    ProducerRecord<Long, String> newRecord1 = new ProducerRecord<Long, String>(TOPIC, fixId,
+//                            PersonGenerator.nextPerson(fixId, rnd, eventTimestamp, config).toString());
+//                    producer.send(newRecord1);
+//                }
+
                 eventsCountSoFar++;
             }
 

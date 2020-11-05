@@ -15,10 +15,14 @@ import org.apache.samza.serializers.StringSerde;
 import org.apache.samza.system.kafka.descriptors.KafkaInputDescriptor;
 import org.apache.samza.system.kafka.descriptors.KafkaOutputDescriptor;
 import org.apache.samza.system.kafka.descriptors.KafkaSystemDescriptor;
+import org.apache.samza.config.Config;
+import org.apache.samza.runtime.LocalApplicationRunner;
 import org.codehaus.jackson.annotate.JsonProperty;
 import samzaapps.Nexmark.serde.Auction;
 import samzaapps.Nexmark.serde.Bid;
 import samzaapps.Nexmark.serde.Person;
+import org.apache.samza.util.CommandLine;
+import joptsimple.OptionSet;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -112,6 +116,16 @@ public class Query3 implements StreamApplication, Serializable {
                 .join(repartitionedPersons, joinFunction,
                         stringSerde, auctionSerde, personSerde, Duration.ofSeconds(3), "join")
                 .sendTo(joinResults);
+    }
+
+
+    public static void main(String[] args) {
+        CommandLine cmdLine = new CommandLine();
+        OptionSet options = cmdLine.parser().parse(args);
+        Config config = cmdLine.loadConfig(options);
+        LocalApplicationRunner runner = new LocalApplicationRunner(new Query3(), config);
+        runner.run();
+        runner.waitForFinish();
     }
 
     static class JoinResult {

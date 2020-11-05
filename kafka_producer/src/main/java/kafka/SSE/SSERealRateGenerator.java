@@ -95,14 +95,70 @@ public class SSERealRateGenerator {
 
                 for (int i=0; i< REPEAT; i++) {
 //                    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, null, getTime(date).getTime(), sCurrentLine.split("\\|")[Sec_Code], sCurrentLine);
-                    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, null, getTime(date).getTime(), sCurrentLine.split("\\|")[Sec_Code], sCurrentLine);
+                    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, null, sCurrentLine.split("\\|")[Sec_Code], sCurrentLine);
                     producer.send(newRecord);
                     counter++;
                 }
+//                sleep(100);
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ParseException e) {
+        } finally {
+            try {
+                if(stream != null) stream.close();
+                if(br != null) br.close();
+            } catch(IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        producer.close();
+        //logger.info("LatencyLog: " + String.valueOf(System.currentTimeMillis() - time));
+    }
+
+    public void generate(String FILE, int rate) throws InterruptedException {
+        String sCurrentLine;
+        FileReader stream = null;
+        // // for loop to generate message
+        BufferedReader br = null;
+        long start = 0;
+        int counter = 0;
+
+        try {
+            stream = new FileReader(FILE);
+            br = new BufferedReader(stream);
+
+            start = System.currentTimeMillis();
+
+            while ((sCurrentLine = br.readLine()) != null) {
+
+                if (sCurrentLine.equals("end")) {
+                    continue;
+                }
+
+                String[] orderArr = sCurrentLine.split("\\|");
+
+                if (orderArr.length < 10) {
+                    continue;
+                }
+
+                long now = System.currentTimeMillis();
+                if (now - start < 1000 && counter < rate) {
+
+                    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, null, sCurrentLine.split("\\|")[Sec_Code], sCurrentLine);
+                    producer.send(newRecord);
+                    counter++;
+                } else if(now - start >= 1000){
+                    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, null, sCurrentLine.split("\\|")[Sec_Code], sCurrentLine);
+                    producer.send(newRecord);
+                    counter = 1;
+                    start = now;
+                } else if (counter >= rate){
+                    sleep(1000 - (now - start));
+                    start = now;
+                    counter = 1;
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -121,14 +177,16 @@ public class SSERealRateGenerator {
         final ParameterTool params = ParameterTool.fromArgs(args);
 
         String TOPIC = params.get("topic", "stock_sb");
-        String FILE = params.get("fp", "/home/samza/SSE_data/sb.txt");
+        String FILE = params.get("fp", "/home/drg/data/SSE_data/sb.txt");
         int REPEAT = params.getInt("repeat", 1);
-        String BROKERS = params.get("host", "camel:9092");
-        int INTERVAL = params.getInt("interval", 1000);
+        String BROKERS = params.get("host", "localhost:9092");
+        int interval = params.getInt("interval", 1000);
+        int rate = params.getInt("rate", 1000);
 
         System.out.println(TOPIC + FILE + REPEAT + BROKERS);
 
-        new SSERealRateGenerator(TOPIC, BROKERS).generate(FILE, REPEAT, INTERVAL);
+//        new SSERealRateGenerator(TOPIC, BROKERS).generate(FILE, rate);
+        new SSERealRateGenerator(TOPIC, BROKERS).generate(FILE, REPEAT, interval);
     }
 
     private static Date getTime(String time) throws ParseException {

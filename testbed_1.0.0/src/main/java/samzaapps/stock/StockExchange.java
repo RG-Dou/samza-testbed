@@ -50,7 +50,7 @@ public class StockExchange implements StreamApplication {
     Map<String, Map<Float, List<Order>>> pool = new HashMap<>();
     Map<String, List<Float>> poolPrice = new HashMap<>();
 
-    private static final String INPUT_STREAM_ID = "stock_input";
+    private static final String INPUT_STREAM_ID = "stock_sb";
     private static final String OUTPUT_STREAM_ID = "stock_output";
 
     @Override

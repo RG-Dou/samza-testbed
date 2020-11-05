@@ -23,6 +23,7 @@ public class KafkaAuctionGenerator {
     private long eventsCountSoFar = 0;
     private int rate;
     private int cycle;
+    private long fixId = 10000;
 
     public KafkaAuctionGenerator(String input, String BROKERS, int rate, int cycle) {
         Properties props = new Properties();
@@ -53,7 +54,7 @@ public class KafkaAuctionGenerator {
                 // change input rate every 1 second.
                 epoch++;
                 System.out.println();
-                curRate = changeRate(epoch);
+//                curRate = changeRate(epoch);
                 System.out.println("epoch: " + epoch%cycle + " current rate is: " + curRate);
                 count = 0;
             }
@@ -75,6 +76,13 @@ public class KafkaAuctionGenerator {
                 ProducerRecord<Long, String> newRecord = new ProducerRecord<Long, String>(TOPIC, nextId,
                         AuctionGenerator.nextAuction(eventsCountSoFar, nextId, rnd, eventTimestamp, config).toString());
                 producer.send(newRecord);
+
+                //DrG
+//                for(int j = 0; j < 1; j ++) {
+//                    ProducerRecord<Long, String> newRecord1 = new ProducerRecord<Long, String>(TOPIC, fixId,
+//                            AuctionGenerator.nextAuction(eventsCountSoFar, fixId, rnd, eventTimestamp, config).toString());
+//                    producer.send(newRecord1);
+//                }
                 eventsCountSoFar++;
             }
 
