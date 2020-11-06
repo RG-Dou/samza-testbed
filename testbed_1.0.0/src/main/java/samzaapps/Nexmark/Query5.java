@@ -65,7 +65,7 @@ public class Query5 implements StreamApplication {
 
         repartitionedBids
                 .window(Windows.keyedTumblingWindow(
-                    bd-> String.valueOf(bd.getAuction()), Duration.ofSeconds(60),
+                    bd-> String.valueOf(bd.getAuction()), Duration.ofSeconds(10),
                     ()-> 0, (m, prevCount) -> prevCount + 1,
                     new StringSerde(), new IntegerSerde()), "count"
                 ) // TODO: check which window is more suitable here

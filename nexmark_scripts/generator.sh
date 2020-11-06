@@ -5,15 +5,16 @@ Hadoop_Dir="/home/drg/projects/work2/hadoop-dir/Hadoop-YarnVerticalScaling"
 
 IS_COMPILE=$1
 HOST=$2
+DURATION=300
 #APP=$3
 
 BROKER=${HOST}:9092
 RATE=20000
 CYCLE=60
 
-App_List="1"
-Mem_List="1000"
-CPU_List="1"
+App_List="1 5 8"
+Mem_List="500 750 1000 1250 1500 1750 2000"
+CPU_List="1 2 3"
 
 function clearEnv() {
     ~/tools/kafka/bin/kafka-topics.sh --delete --zookeeper ${HOST}:2181 --topic auctions
@@ -104,6 +105,7 @@ function main(){
 
     clearEnv
     configApp $APP $CPU $MEM
+    python -c 'import time; time.sleep(5)'
     runApp $APP
 
     # wait for app start
@@ -111,6 +113,11 @@ function main(){
 
     if [[ ${APP} == 1 ]] || [[ ${APP} == 5 ]]
     then
+        generateBid
+        generateBid
+        generateBid
+        generateBid
+        generateBid
         generateBid
         generateBid
         generateBid
@@ -140,7 +147,7 @@ function main(){
 
 
     # run 1200s
-    python -c 'import time; time.sleep(1200)'
+    python -c 'import time; time.sleep(900)'
     killApp
     python -c 'import time; time.sleep(10)'
 }
