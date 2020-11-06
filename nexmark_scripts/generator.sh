@@ -1,10 +1,19 @@
 #!/usr/bin bash
 APP_DIR="$(dirname $(pwd))"
+Hadoop_Dir="/home/drg/projects/work2/hadoop-dir/Hadoop-YarnVerticalScaling"
 # sh ... 0 localhost 3
 
 IS_COMPILE=$1
 HOST=$2
-APP=$3
+#APP=$3
+
+BROKER=${HOST}:9092
+RATE=20000
+CYCLE=60
+
+App_List="1"
+Mem_List="1000"
+CPU_List="1"
 
 function clearEnv() {
     ~/tools/kafka/bin/kafka-topics.sh --delete --zookeeper ${HOST}:2181 --topic auctions
@@ -32,6 +41,8 @@ function clearEnv() {
 
 function configApp() {
     sed -i -- 's/localhost/'${HOST}'/g' ${APP_DIR}/testbed_1.0.0/target/config/nexmark-q${APP}.properties
+    sed -ri "s|(cluster-manager.container.memory.mb=)[0-9]*|cluster-manager.container.memory.mb=$MEM|" ${APP_DIR}/testbed_1.0.0/src/main/config/nexmark-q${APP}.properties
+    sed -ri "s|(cluster-manager.container.cpu.cores=)[0-9]*|cluster-manager.container.cpu.cores=$CPU|" ${APP_DIR}/testbed_1.0.0/src/main/config/nexmark-q${APP}.properties
 }
 
 function compile() {
@@ -79,57 +90,67 @@ function runApp() {
 function killApp() {
 #    ~/samza-hello-samza/deploy/yarn/bin/yarn application -kill $appid
     kill -9 $(jps | grep Generator | awk '{print $1}')
+    ${APP_DIR}/testbed_1.0.0/target/bin/kill-all.sh
+    cp -rf ${Hadoop_Dir}/hadoop-dist/target/hadoop-3.0.0-SNAPSHOT/logs/userlogs/* /home/drg/results/
+}
+
+function main(){
+    if [ ${IS_COMPILE} == 1 ]
+    then
+        compile
+        compileGenerator
+    #    uploadHDFS
+    fi
+
+    clearEnv
+    configApp $APP $CPU $MEM
+    runApp $APP
+
+    # wait for app start
+    python -c 'import time; time.sleep(5)'
+
+    if [[ ${APP} == 1 ]] || [[ ${APP} == 5 ]]
+    then
+        generateBid
+        generateBid
+        generateBid
+        generateBid
+        generateBid
+        generateBid
+        generateBid
+    elif [[ ${APP} == 8 ]] || [[ ${APP} == 3 ]];
+    then
+        generateAuction
+        generateAuction
+        generateAuction
+        generateAuction
+        generateAuction
+        generateAuction
+        generateAuction
+        generateAuction
+        generatePerson
+        generatePerson
+        generatePerson
+        generatePerson
+        generatePerson
+        generatePerson
+        generatePerson
+        generatePerson
+    fi
+
+
+    # run 1200s
+    python -c 'import time; time.sleep(1200)'
+    killApp
+    python -c 'import time; time.sleep(10)'
 }
 
 
-if [ ${IS_COMPILE} == 1 ]
-then
-    compile
-    compileGenerator
-#    uploadHDFS
-fi
+for APP in $App_List; do
+    for CPU in $CPU_List; do
+        for MEM in $Mem_List; do
+            main $APP $CPU $MEM
+        done
+    done
+done
 
-clearEnv
-#configApp
-runApp
-
-# wait for app start
-python -c 'import time; time.sleep(5)'
-
-BROKER=${HOST}:9092
-RATE=20000
-CYCLE=60
-
-if [[ ${APP} == 1 ]] || [[ ${APP} == 5 ]]
-then
-    generateBid
-    generateBid
-    generateBid
-    generateBid
-    generateBid
-    generateBid
-    generateBid
-elif [[ ${APP} == 8 ]] || [[ ${APP} == 3 ]];
-then
-    generateAuction
-    generateAuction
-    generateAuction
-    generateAuction
-    generateAuction
-    generateAuction
-    generateAuction
-    generateAuction
-    generatePerson
-    generatePerson
-    generatePerson
-    generatePerson
-    generatePerson
-    generatePerson
-    generatePerson
-    generatePerson
-fi
-
-
-# run 1200s
-python -c 'import time; time.sleep(1200)'
-killApp
