@@ -5,16 +5,16 @@ Hadoop_Dir="/home/drg/projects/work2/hadoop-dir/Hadoop-YarnVerticalScaling"
 
 IS_COMPILE=$1
 HOST=$2
-DURATION=300
 #APP=$3
 
 BROKER=${HOST}:9092
-RATE=20000
+RATE=8000
 CYCLE=60
 
-App_List="1 5 8"
-Mem_List="500 750 1000 1250 1500 1750 2000"
-CPU_List="1 2 3"
+App_List="2"
+# Mem_List="500 750 1000 1250 1500 1750 2000"
+Mem_List="500"
+CPU_List="1"
 
 function clearEnv() {
     ~/tools/kafka/bin/kafka-topics.sh --delete --zookeeper ${HOST}:2181 --topic auctions
@@ -35,13 +35,13 @@ function clearEnv() {
 
 #    ~/tools/kafka/bin/kafka-topics.sh --zookeeper ${HOST}:2181 --create --topic auctions --partitions 8 --replication-factor 1  --config message.timestamp.type=LogAppendTime
 #    ~/tools/kafka/bin/kafka-topics.sh --zookeeper ${HOST}:2181 --create --topic persons --partitions 8 --replication-factor 1 --config message.timestamp.type=LogAppendTime
-    ~/tools/kafka/bin/kafka-topics.sh --zookeeper ${HOST}:2181 --create --topic auctions --partitions 8 --replication-factor 1
-    ~/tools/kafka/bin/kafka-topics.sh --zookeeper ${HOST}:2181 --create --topic persons --partitions 8 --replication-factor 1
-    ~/tools/kafka/bin/kafka-topics.sh --zookeeper ${HOST}:2181 --create --topic bids --partitions 8 --replication-factor 1
+    ~/tools/kafka/bin/kafka-topics.sh --zookeeper ${HOST}:2181 --create --topic auctions --partitions 16 --replication-factor 1
+    ~/tools/kafka/bin/kafka-topics.sh --zookeeper ${HOST}:2181 --create --topic persons --partitions 16 --replication-factor 1
+    ~/tools/kafka/bin/kafka-topics.sh --zookeeper ${HOST}:2181 --create --topic bids --partitions 16 --replication-factor 1
 }
 
 function configApp() {
-    sed -i -- 's/localhost/'${HOST}'/g' ${APP_DIR}/testbed_1.0.0/target/config/nexmark-q${APP}.properties
+#    sed -i -- 's/localhost/'${HOST}'/g' ${APP_DIR}/testbed_1.0.0/target/config/nexmark-q${APP}.properties
     sed -ri "s|(cluster-manager.container.memory.mb=)[0-9]*|cluster-manager.container.memory.mb=$MEM|" ${APP_DIR}/testbed_1.0.0/src/main/config/nexmark-q${APP}.properties
     sed -ri "s|(cluster-manager.container.cpu.cores=)[0-9]*|cluster-manager.container.cpu.cores=$CPU|" ${APP_DIR}/testbed_1.0.0/src/main/config/nexmark-q${APP}.properties
 }
@@ -96,6 +96,10 @@ function killApp() {
 }
 
 function main(){
+    clearEnv
+    configApp $APP $CPU $MEM
+    python -c 'import time; time.sleep(5)'
+
     if [ ${IS_COMPILE} == 1 ]
     then
         compile
@@ -103,51 +107,32 @@ function main(){
     #    uploadHDFS
     fi
 
-    clearEnv
-    configApp $APP $CPU $MEM
-    python -c 'import time; time.sleep(5)'
     runApp $APP
 
     # wait for app start
     python -c 'import time; time.sleep(5)'
 
-    if [[ ${APP} == 1 ]] || [[ ${APP} == 5 ]]
+    if [[ ${APP} == 1 ]] || [[ ${APP} == 5 ]] || [[ ${APP} == 2 ]];
     then
-        generateBid
-        generateBid
-        generateBid
-        generateBid
-        generateBid
-        generateBid
-        generateBid
-        generateBid
-        generateBid
-        generateBid
-        generateBid
-        generateBid
+	for j in {1..40}
+        do
+            generateBid
+    	done    
     elif [[ ${APP} == 8 ]] || [[ ${APP} == 3 ]];
     then
-        generateAuction
-        generateAuction
-        generateAuction
-        generateAuction
-        generateAuction
-        generateAuction
-        generateAuction
-        generateAuction
-        generatePerson
-        generatePerson
-        generatePerson
-        generatePerson
-        generatePerson
-        generatePerson
-        generatePerson
-        generatePerson
+	for j in {1..20}
+        do
+            generateAuction
+    	done    
+	for j in {1..20}
+        do
+            generatePerson
+    	done    
     fi
 
 
     # run 1200s
-    python -c 'import time; time.sleep(900)'
+    python -c 'import time; time.sleep(3000)'
     killApp
     python -c 'import time; time.sleep(10)'
 }
