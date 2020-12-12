@@ -69,6 +69,7 @@ function runApp() {
 function killApp() {
 #    ~/samza-hello-samza/deploy/yarn/bin/yarn application -kill $appid
     kill -9 $(jps | grep Generator | awk '{print $1}')
+    ${APP_DIR}/testbed_1.0.0/target/bin/kill-all.sh
 }
 
 

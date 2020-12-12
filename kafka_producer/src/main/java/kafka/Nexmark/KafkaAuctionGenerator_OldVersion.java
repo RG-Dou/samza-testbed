@@ -1,32 +1,31 @@
 package kafka.Nexmark;
 
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.beam.sdk.nexmark.sources.generator.model.AuctionGenerator;
-import org.apache.beam.sdk.nexmark.model.Auction;
-import java.util.Properties;
-import java.util.Random;
 import org.apache.beam.sdk.nexmark.NexmarkConfiguration;
 import org.apache.beam.sdk.nexmark.sources.generator.GeneratorConfig;
+import org.apache.beam.sdk.nexmark.sources.generator.model.AuctionGenerator;
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+
+import java.util.Properties;
+import java.util.Random;
 
 /**
  * SSE generaor
  */
-public class KafkaAuctionGenerator {
+public class KafkaAuctionGenerator_OldVersion {
 
     private String TOPIC;
 
     private static KafkaProducer<Long, String> producer;
-    private NexmarkConfiguration nexmarkConfiguration = NexmarkConfiguration.DEFAULT;
-    private final GeneratorConfig config;
+    private final GeneratorConfig config = new GeneratorConfig(NexmarkConfiguration.DEFAULT, 1, 1000L, 0, 1);
     private volatile boolean running = true;
     private long eventsCountSoFar = 0;
     private int rate;
     private int cycle;
     private long fixId = 10000;
 
-    public KafkaAuctionGenerator(String input, String BROKERS, int rate, int cycle, int hotSellersRatio) {
+    public KafkaAuctionGenerator_OldVersion(String input, String BROKERS, int rate, int cycle) {
         Properties props = new Properties();
         props.put("bootstrap.servers", BROKERS);
         props.put("client.id", "ProducerExample");
@@ -37,8 +36,6 @@ public class KafkaAuctionGenerator {
         TOPIC = input;
         this.rate = rate;
         this.cycle = cycle;
-        nexmarkConfiguration.hotSellersRatio = hotSellersRatio;
-        config = new GeneratorConfig(nexmarkConfiguration, 1, 1000L, 0, 1);
     }
 
     public void generate() throws InterruptedException {
@@ -120,9 +117,8 @@ public class KafkaAuctionGenerator {
         String TOPIC = params.get("topic", "auctions");
         int rate = params.getInt("rate", 1000);
         int cycle = params.getInt("cycle", 360);
-        int hotSellersRatio = params.getInt("hotSellersRatio", 4);
 
-        new KafkaAuctionGenerator(TOPIC, BROKERS, rate, cycle, hotSellersRatio).generate();
+        new KafkaAuctionGenerator_OldVersion(TOPIC, BROKERS, rate, cycle).generate();
     }
 }
 

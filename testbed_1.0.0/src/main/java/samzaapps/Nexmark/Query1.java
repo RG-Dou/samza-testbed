@@ -69,7 +69,7 @@ public class Query1 implements StreamApplication, Serializable {
 
         bids
                 .map(kv -> {
-//                    delay(1);
+                    //delay(1);
                     return kv;
                 })
                 .map(bid -> KV.of(String.valueOf(bid.getAuction()),
