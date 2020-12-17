@@ -2,6 +2,7 @@ package samzaapps.Nexmark;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.samza.application.StreamApplication;
 import org.apache.samza.application.descriptors.StreamApplicationDescriptor;
 import org.apache.samza.operators.KV;
@@ -31,6 +32,7 @@ public class Query2 implements StreamApplication {
 
     private static final String BID_STREAM = "bids";
     private static final String OUTPUT_STREAM_ID = "results";
+    private RandomDataGenerator randomGen = new RandomDataGenerator();
 
     @Override
     public void describe(StreamApplicationDescriptor appDescriptor) {
