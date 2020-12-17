@@ -61,6 +61,7 @@ public class Query2 implements StreamApplication {
 
         bids
                 .filter(bid -> {
+                    delay(1);
                     if (bid.getAuction() % 1007 == 0 || bid.getAuction() % 1020 == 0
                             || bid.getAuction() % 2001 == 0 || bid.getAuction() % 2019 == 0 || bid.getAuction() % 2087 == 0) {
                         return true;
@@ -70,5 +71,16 @@ public class Query2 implements StreamApplication {
                 })
                 .map(bid -> KV.of(String.valueOf(bid.getAuction()), String.valueOf(bid.getPrice())))
                 .sendTo(results);
+    }
+
+    private void delay(int interval) {
+        Double ranN = randomGen.nextGaussian(interval, 1);
+//        ranN = ranN*1000;
+//        ranN = ranN*1000;
+//        long delay = ranN.intValue();
+//        if (delay < 0) delay = 6000;
+        long delay = interval*100000;
+        Long start = System.nanoTime();
+        while (System.nanoTime() - start < delay) {}
     }
 }
