@@ -62,8 +62,11 @@ public class Query2 implements StreamApplication {
         OutputStream<KV<String, String>> results = appDescriptor.getOutputStream(outputDescriptor);
 
         bids
-                .filter(bid -> {
+                .map(kv -> {
                     delay(1);
+                    return kv;
+                })
+                .filter(bid -> {
                     if (bid.getAuction() % 1007 == 0 || bid.getAuction() % 1020 == 0
                             || bid.getAuction() % 2001 == 0 || bid.getAuction() % 2019 == 0 || bid.getAuction() % 2087 == 0) {
                         return true;
