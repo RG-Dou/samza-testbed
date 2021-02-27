@@ -18,6 +18,8 @@ import org.apache.samza.system.kafka.descriptors.KafkaSystemDescriptor;
 import samzaapps.Nexmark.serde.Auction;
 import samzaapps.Nexmark.serde.Bid;
 import samzaapps.Nexmark.serde.Person;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import java.util.List;
 import java.util.Map;
@@ -63,7 +65,7 @@ public class Query2 implements StreamApplication {
 
         bids
                 .map(kv -> {
-                    delay(1);
+                    delay(200000, 1);
                     return kv;
                 })
                 .filter(bid -> {
@@ -78,14 +80,31 @@ public class Query2 implements StreamApplication {
                 .sendTo(results);
     }
 
-    private void delay(int interval) {
-        Double ranN = randomGen.nextGaussian(interval, 1);
-//        ranN = ranN*1000;
-//        ranN = ranN*1000;
-//        long delay = ranN.intValue();
-//        if (delay < 0) delay = 6000;
-        long delay = interval*100000;
-        Long start = System.nanoTime();
-        while (System.nanoTime() - start < delay) {}
+
+    private void delay(int interval, double limit) {
+        int actInt = (int) (interval/limit);
+        long start = System.nanoTime();
+        while (System.nanoTime() - start < actInt) {}
     }
+
+    private String getHost() {
+        String hostname = null;
+        try {
+            hostname = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return hostname;
+    }
+
+//    private void delay(int interval) {
+//        Double ranN = randomGen.nextGaussian(interval, 1);
+////        ranN = ranN*1000;
+////        ranN = ranN*1000;
+////        long delay = ranN.intValue();
+////        if (delay < 0) delay = 6000;
+//        long delay = interval*100000;
+//        Long start = System.nanoTime();
+//        while (System.nanoTime() - start < delay) {}
+//    }
 }

@@ -6,7 +6,7 @@ public class ConsumerExample {
 
         String brokers = "localhost:9092";
         String groupId = "test";
-        String topic = "test";
+        String topic = "bids";
 
         if (args != null && args.length == 3) {
             brokers = args[0];

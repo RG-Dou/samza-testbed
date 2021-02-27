@@ -57,7 +57,7 @@ public class KafkaAuctionGenerator {
                 // change input rate every 1 second.
                 epoch++;
                 System.out.println();
-//                curRate = changeRate(epoch);
+                curRate = changeRate(epoch);
                 System.out.println("epoch: " + epoch%cycle + " current rate is: " + curRate);
                 count = 0;
             }
