@@ -18,14 +18,14 @@ import org.apache.samza.system.kafka.descriptors.KafkaSystemDescriptor;
 import samzaapps.Nexmark.serde.Auction;
 import samzaapps.Nexmark.serde.Bid;
 import samzaapps.Nexmark.serde.Person;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import java.util.List;
 import java.util.Map;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 
-public class Query2 implements StreamApplication {
+public class Query22 implements StreamApplication {
 
     private static final String KAFKA_SYSTEM_NAME = "kafka";
     private static final List<String> KAFKA_CONSUMER_ZK_CONNECT = ImmutableList.of("localhost:2181");
@@ -64,8 +64,9 @@ public class Query2 implements StreamApplication {
         OutputStream<KV<String, String>> results = appDescriptor.getOutputStream(outputDescriptor);
 
         bids
-                .map(kv -> {
-                    return kv;
+                .map(bid -> {
+                    delay(200000, 1);
+                    return bid;
                 })
                 .filter(bid -> {
                     if (bid.getAuction() % 1007 == 0 || bid.getAuction() % 1020 == 0
@@ -96,14 +97,4 @@ public class Query2 implements StreamApplication {
         return hostname;
     }
 
-//    private void delay(int interval) {
-//        Double ranN = randomGen.nextGaussian(interval, 1);
-////        ranN = ranN*1000;
-////        ranN = ranN*1000;
-////        long delay = ranN.intValue();
-////        if (delay < 0) delay = 6000;
-//        long delay = interval*100000;
-//        Long start = System.nanoTime();
-//        while (System.nanoTime() - start < delay) {}
-//    }
 }

@@ -1,89 +1,67 @@
 package samzatask.stock;
 
-import java.util.HashMap;
-import java.util.Map;
-
-;
+import java.io.Serializable;
 
 /**
  * Author by Mao
  * kmeans data structure, and some operator
  */
 
-class Order {
+class Order implements Serializable {
     /**
      * The user that viewed the page
      */
-    public String[] orderList;
     private static final int Order_No = 0;
     private static final int Tran_Maint_Code = 1;
-    private static final int Order_Price = 8;
-    private static final int Order_Exec_Vol = 9;
-    private static final int Order_Vol = 10;
-    private static final int Sec_Code = 11;
-    private static final int Trade_Dir = 22;
+    private static final int Last_Upd_Time = 2;
+    private static final int Order_Price = 3;
+    private static final int Order_Exec_Vol = 4;
+    private static final int Order_Vol = 5;
+    private static final int Sec_Code = 6;
+    private static final int Trade_Dir = 7;
 
-    private Map<String, String> orderMap = new HashMap<String, String>();
+//    private static final int Order_Price = 8;
+//    private static final int Order_Vol = 10;
+
+    private static final int Mapped_Order_No = 0;
+    private static final int Mapped_Order_Price = 1;
+    private static final int Mapped_Order_Vol = 2;
+
+//    private String[] orderArr;
+    private int orderNo;
+    private int orderPrice;
+    private int orderVol;
 
     Order(String[] orderArr) {
-        String orderNo = orderArr[Order_No];
-        String tranMaintCode = orderArr[Tran_Maint_Code];
-
-        orderMap.put("Order_No", orderNo);
-        orderMap.put("Tran_Maint_Code", tranMaintCode);
-        if (!tranMaintCode.equals("")) {
-            orderMap.put("Order_Price", orderArr[Order_Price]);
-            orderMap.put("Order_Exec_Vol", orderArr[Order_Exec_Vol]);
-            orderMap.put("Order_Vol", orderArr[Order_Vol]);
-            orderMap.put("Sec_Code", orderArr[Sec_Code]);
-            orderMap.put("Trade_Dir", orderArr[Trade_Dir]);
-        }
+        orderNo = orderArr[Order_No].hashCode();
+        Float price = Float.parseFloat(orderArr[Order_Price]) * 100;
+        orderPrice = price.intValue();
+        Float interOrderVol = Float.parseFloat(orderArr[Order_Vol]);
+        orderVol = interOrderVol.intValue();
     }
 
-    String getOrderNo() {
-        return orderMap.get("Order_No");
+    Order(String orderNo, String orderPrice, String orderVol) {
+        this.orderNo = orderNo.hashCode();
+        Float price = Float.parseFloat(orderPrice) * 100;
+        this.orderPrice = price.intValue();
+        Float interOrderVol = Float.parseFloat(orderVol);
+        this.orderVol = interOrderVol.intValue();
     }
-    String getTranMaintCode() {
-        return orderMap.get("Tran_Maint_Code");
+
+    int getOrderNo() {
+        return orderNo;
     }
-    float getOrderPrice() {
-        return Float.parseFloat(orderMap.get("Order_Price"));
-    }
-    int getOrderExecVol() {
-        Float interOrderExecVol = Float.parseFloat(orderMap.get("Order_Exec_Vol"));
-        return interOrderExecVol.intValue();
+
+    int getOrderPrice() {
+        return orderPrice;
     }
     int getOrderVol() {
-        Float interOrderVol = Float.parseFloat(orderMap.get("Order_Vol"));
-        return interOrderVol.intValue();
-    }
-    String getSecCode() {
-        return orderMap.get("Sec_Code");
-    }
-    String getTradeDir() {
-        return orderMap.get("Trade_Dir");
+        return orderVol;
     }
 
-    String getKey(String key) {
-        return orderMap.get(key);
-    }
-
-    String objToString() {
-        StringBuilder messageBuilder = new StringBuilder();
-        messageBuilder.append(orderMap.get("Order_No")).append("|");
-        messageBuilder.append(orderMap.get("Tran_Maint_Code")).append("|");
-        messageBuilder.append(orderMap.get("Order_Price")).append("|");
-        messageBuilder.append(orderMap.get("Order_Exec_Vol")).append("|");
-        messageBuilder.append(orderMap.get("Order_Vol")).append("|");
-        messageBuilder.append(orderMap.get("Sec_Code")).append("|");
-        messageBuilder.append(orderMap.get("Trade_Dir"));
-        return messageBuilder.toString();
-        // return String.join("|", this.orderList);
-    }
-
-    public boolean updateOrder(int otherOrderVol) {
-        orderMap.put("Order_Vol", (this.getOrderVol() - otherOrderVol) + "");
-        orderMap.put("Order_Exec_Vol", (this.getOrderExecVol() + otherOrderVol) + "");
-        return true;
+    void updateOrder(int otherOrderVol) {
+        orderVol = (this.getOrderVol() - otherOrderVol);
     }
 }
+
+

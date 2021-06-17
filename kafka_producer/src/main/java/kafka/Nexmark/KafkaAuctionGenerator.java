@@ -24,9 +24,10 @@ public class KafkaAuctionGenerator {
     private long eventsCountSoFar = 0;
     private int rate;
     private int cycle;
+    private int base;
     private long fixId = 10000;
 
-    public KafkaAuctionGenerator(String input, String BROKERS, int rate, int cycle, int hotSellersRatio) {
+    public KafkaAuctionGenerator(String input, String BROKERS, int rate, int cycle, int hotSellersRatio, int base) {
         Properties props = new Properties();
         props.put("bootstrap.servers", BROKERS);
         props.put("client.id", "ProducerExample");
@@ -37,6 +38,7 @@ public class KafkaAuctionGenerator {
         TOPIC = input;
         this.rate = rate;
         this.cycle = cycle;
+        this.base = base;
         nexmarkConfiguration.hotSellersRatio = hotSellersRatio;
         config = new GeneratorConfig(nexmarkConfiguration, 1, 1000L, 0, 1);
     }
@@ -47,7 +49,7 @@ public class KafkaAuctionGenerator {
         int count = 0;
 
         long emitStartTime = 0;
-        int curRate = rate;
+        int curRate = rate + base;
 
         while (running && eventsCountSoFar < 20_000_000) {
 
@@ -57,7 +59,7 @@ public class KafkaAuctionGenerator {
                 // change input rate every 1 second.
                 epoch++;
                 System.out.println();
-//                curRate = changeRate(epoch);
+                curRate = changeRate(epoch) + base;
                 System.out.println("epoch: " + epoch%cycle + " current rate is: " + curRate);
                 count = 0;
             }
@@ -120,9 +122,10 @@ public class KafkaAuctionGenerator {
         String TOPIC = params.get("topic", "auctions");
         int rate = params.getInt("rate", 1000);
         int cycle = params.getInt("cycle", 360);
-        int hotSellersRatio = params.getInt("hotSellersRatio", 4);
+        int hotSellersRatio = params.getInt("hotSellersRatio", 1);
+        int base = params.getInt("base", 0);
 
-        new KafkaAuctionGenerator(TOPIC, BROKERS, rate, cycle, hotSellersRatio).generate();
+        new KafkaAuctionGenerator(TOPIC, BROKERS, rate, cycle, hotSellersRatio, base).generate();
     }
 }
 
